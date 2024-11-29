@@ -1,13 +1,13 @@
 package pg
 
 import (
-	"app/internal/pkg/todo/ent"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"reflect"
 	"time"
 )
 
@@ -78,13 +78,20 @@ func (p *Postgres) WithTransaction(fn func(tx *gorm.DB) error) error {
 }
 
 // SeedData populates the database with dynamic initial data
-func (p *Postgres) SeedData(data any) error {
-	todos, ok := data.([]ent.Todo)
-	if !ok {
-		return fmt.Errorf("invalid data type, expected []ent.Todo")
-	}
-	for _, todo := range todos {
-		p.DB.FirstOrCreate(&todo, ent.Todo{Text: todo.Text})
+func (p *Postgres) SeedData(data []any) error {
+	value := reflect.ValueOf(data)
+
+	for i := 0; i < value.Len(); i++ {
+		item := value.Index(i).Interface()
+
+		elemType := reflect.TypeOf(item)
+		if elemType.Kind() != reflect.Ptr || elemType.Elem().Kind() != reflect.Struct {
+			return fmt.Errorf("invalid data type, expected a pointer to a struct, got %T", item)
+		}
+
+		if err := p.DB.FirstOrCreate(item).Error; err != nil {
+			return fmt.Errorf("failed to seed data: %w", err)
+		}
 	}
 	return nil
 }

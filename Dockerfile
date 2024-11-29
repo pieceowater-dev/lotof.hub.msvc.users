@@ -40,6 +40,7 @@ LABEL authors="pieceowater"
 CMD ["./app"]
 
 EXPOSE 50051
+EXPOSE 3000
 
 # Clean up unnecessary files to reduce image size
 RUN rm -rf /app && \

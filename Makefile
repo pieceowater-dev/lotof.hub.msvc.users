@@ -1,11 +1,11 @@
-APP_NAME = lotof.sample.svc
+APP_NAME = lotof.hub.msvc.users
 BUILD_DIR = bin
 MAIN_FILE = cmd/server/main.go
 PG_MIGRATION_DIR = internal/core/db/pg/migrations
 PROTOC = protoc
 PROTOC_GEN_GO = $(GOPATH)/bin/protoc-gen-go
 PROTOC_GEN_GRPC_GO = $(GOPATH)/bin/protoc-gen-go-grpc
-PROTOC_PKG = github.com/pieceowater-dev/lotof.sample.proto
+PROTOC_PKG = github.com/pieceowater-dev/lotof.hub.proto
 PROTOC_PKG_PATH = $(shell go list -m -f '{{.Dir}}' $(PROTOC_PKG))
 PROTOC_DIR = protos
 PROTOC_OUT_DIR = ./internal/core/grpc/generated
@@ -86,7 +86,7 @@ build-docker:
 build-and-run-docker: build-docker
 	docker stop $(APP_NAME)
 	docker rm $(APP_NAME)
-	docker run -d -p 50051:50051 \
+	docker run -d -p 50051:50051 -p 3000:3000 \
 		-e POSTGRES_DB_DSN="$(PG_DB_DSN)" \
 		--network lotofsamplesvc_pieceonetwork \
 		--name $(APP_NAME) \
