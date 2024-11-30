@@ -1,12 +1,10 @@
 package main
 
 import (
-	"app/cmd/server/servers"
-	grpcServ "app/cmd/server/servers/grpc"
-	restServ "app/cmd/server/servers/rest"
 	"app/internal/core/cfg"
 	"app/internal/pkg"
 	"github.com/gin-gonic/gin"
+	"github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"google.golang.org/grpc"
 )
 
@@ -14,9 +12,9 @@ func main() {
 	appCfg := cfg.Inst()
 	appRouter := pkg.NewRouter()
 
-	serverManager := servers.NewServerManager()
-	serverManager.AddServer(grpcServ.New(appCfg.GrpcPort, grpc.NewServer(), appRouter))
-	serverManager.AddServer(restServ.New(appCfg.RestPort, gin.Default(), appRouter))
+	serverManager := gossiper.NewServerManager()
+	serverManager.AddServer(gossiper.NewGRPCServ(appCfg.GrpcPort, grpc.NewServer(), appRouter.InitGRPC))
+	serverManager.AddServer(gossiper.NewRESTServ(appCfg.RestPort, gin.Default(), appRouter.InitREST))
 
 	serverManager.StartAll()
 	defer serverManager.StopAll()

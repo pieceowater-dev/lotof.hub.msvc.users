@@ -1,17 +1,17 @@
 package svc
 
 import (
-	"app/internal/core/db"
 	"app/internal/pkg/user/ent"
 	"errors"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"gorm.io/gorm"
 )
 
 type UserService struct {
-	db db.Database
+	db gossiper.Database
 }
 
-func NewUserService(db db.Database) *UserService {
+func NewUserService(db gossiper.Database) *UserService {
 	return &UserService{db: db}
 }
 

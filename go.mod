@@ -8,10 +8,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pieceowater-dev/lotof.hub.proto v0.0.20
+	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.3
 	golang.org/x/crypto v0.29.0
 	google.golang.org/grpc v1.68.0
-	google.golang.org/protobuf v1.34.2
-	gorm.io/driver/postgres v1.5.9
+	google.golang.org/protobuf v1.35.2
 	gorm.io/gorm v1.25.12
 )
 
@@ -56,6 +56,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/driver/postgres v1.5.9 // indirect
 	gorm.io/driver/sqlite v1.5.6 // indirect
 	gorm.io/driver/sqlserver v1.5.4 // indirect
 )

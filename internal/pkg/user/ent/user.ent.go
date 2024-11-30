@@ -3,6 +3,7 @@ package ent
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -16,7 +17,7 @@ const (
 )
 
 type User struct {
-	ID        string    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Username  string    `gorm:"type:varchar(255);not null"`
 	Email     string    `gorm:"type:varchar(255);unique;not null"`
 	Password  string    `gorm:"type:varchar(255);not null"`
@@ -27,7 +28,23 @@ type User struct {
 	Friends   []*User   `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`
 }
 
-// BeforeSave Hook for password hashing and setting updated timestamp.
+// BeforeCreate Hook for generating custom UUID and password hashing
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	// Generate custom UUID for user
+	u.ID = uuid.New()
+
+	// Hash password if it's not empty
+	if u.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		u.Password = string(hashedPassword)
+	}
+	return nil
+}
+
+// BeforeSave Hook for updating timestamp and hashing password (if necessary)
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	if u.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)

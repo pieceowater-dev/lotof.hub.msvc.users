@@ -2,9 +2,9 @@ package user
 
 import (
 	"app/internal/core/cfg"
-	"app/internal/core/db"
 	"app/internal/pkg/user/ctrl"
 	"app/internal/pkg/user/svc"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"log"
 )
 
@@ -13,10 +13,11 @@ type Module struct {
 }
 
 func New() *Module {
-	database, err := db.New(
+	database, err := gossiper.NewDB(
+		gossiper.PostgresDB,
 		cfg.Inst().PostgresDatabaseDSN,
 		false,
-	).Create(db.PostgresDB)
+	)
 	if err != nil {
 		log.Fatalf("Failed to create database instance: %v", err)
 	}

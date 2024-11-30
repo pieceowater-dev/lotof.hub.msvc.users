@@ -1,18 +1,18 @@
 package svc
 
 import (
-	"app/internal/core/db"
 	"app/internal/pkg/friendship/ent"
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 )
 
 type FriendshipService struct {
-	db db.Database
+	db gossiper.Database
 }
 
-func NewFriendshipService(db db.Database) *FriendshipService {
+func NewFriendshipService(db gossiper.Database) *FriendshipService {
 	return &FriendshipService{db: db}
 }
 

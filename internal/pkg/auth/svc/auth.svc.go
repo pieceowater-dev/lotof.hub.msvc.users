@@ -1,19 +1,19 @@
 package svc
 
 import (
-	"app/internal/core/db"
 	"app/internal/pkg/user/ent"
 	"context"
 	"errors"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
 type AuthService struct {
-	db db.Database
+	db gossiper.Database
 }
 
-func NewAuthService(db db.Database) *AuthService {
+func NewAuthService(db gossiper.Database) *AuthService {
 	return &AuthService{db: db}
 }
 
