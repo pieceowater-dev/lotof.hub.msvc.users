@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	pb "app/internal/core/grpc/generated"
 	"app/internal/pkg/friendship"
 	"app/internal/pkg/user"
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,7 @@ func NewRouter() *Router {
 // InitGRPC initializes gRPC routes
 func (r *Router) InitGRPC(grpcServer *grpc.Server) {
 	// Register gRPC services
-	// pb.RegisterUserServiceServer(grpcServer, r.userModule.Controller)
+	pb.RegisterUserServiceServer(grpcServer, r.userModule.Controller)
 }
 
 // InitREST initializes REST routes using Gin

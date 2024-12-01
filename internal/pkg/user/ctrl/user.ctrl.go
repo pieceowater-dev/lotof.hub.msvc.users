@@ -1,13 +1,18 @@
 package ctrl
 
 import (
+	pb "app/internal/core/grpc/generated"
 	"app/internal/pkg/user/ent"
 	"app/internal/pkg/user/svc"
+	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"net/http"
 )
 
 type UserController struct {
 	userService *svc.UserService
+	pb.UnimplementedUserServiceServer
 }
 
 func NewUserController(service *svc.UserService) *UserController {
@@ -16,19 +21,60 @@ func NewUserController(service *svc.UserService) *UserController {
 	}
 }
 
-// GetUsers retrieves the list of users (abstracted from any HTTP framework).
-func (c UserController) GetUsers() []ent.User {
-	// Fetch users from database or any other source
-	users := []ent.User{}
-	// Add logic to fetch users, for example:
-	//users, err := c.userService.GetAllUsers()
-	//if err != nil {
-	//   return nil
-	//}
-	return users
+func (c UserController) GetUsers(_ context.Context, request *pb.GetUsersRequest) (*pb.GetUsersResponse, error) {
+	return c.userService.GetUsers(request)
+}
+
+func (c UserController) GetUser(_ context.Context, request *pb.GetUserRequest) (*pb.User, error) {
+	user, err := c.userService.GetUserByID(request.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.User{
+		Id:       user.ID.String(),
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
+}
+
+func (c UserController) CreateUser(_ context.Context, request *pb.CreateUserRequest) (*pb.User, error) {
+	user, err := c.userService.CreateUser(&ent.User{
+		Username: request.Username,
+		Password: request.Password,
+		Email:    request.Email,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.User{
+		Id:       user.ID.String(),
+		Username: user.Username,
+		Email:    user.Email,
+	}, err
+}
+
+func (c UserController) UpdateUser(_ context.Context, request *pb.UpdateUserRequest) (*pb.User, error) {
+	user, err := c.userService.UpdateUser(&ent.User{
+		ID:       uuid.MustParse(request.Id),
+		Username: request.Username,
+		Email:    request.Email,
+		Password: request.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.User{
+		Id:       user.ID.String(),
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
 }
 
 // ListREST handles the HTTP request for getting users via Gin.
 func (c UserController) ListREST(ctx *gin.Context) {
-	ctx.JSON(200, c.GetUsers())
+	res, err := c.GetUsers(ctx, &pb.GetUsersRequest{})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+	}
+	ctx.JSON(200, res)
 }
