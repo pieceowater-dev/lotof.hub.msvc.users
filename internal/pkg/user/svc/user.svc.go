@@ -42,6 +42,7 @@ func (s *UserService) UpdateUser(user *ent.User) (*ent.User, error) {
 }
 
 // todo: make correct filter instead of pb.GetUsersRequest
+// todo: fix sort: { field: "created_at", by: ASC }
 
 func (s *UserService) GetUsers(request *pb.GetUsersRequest) (*pb.GetUsersResponse, error) {
 	var users []ent.User
