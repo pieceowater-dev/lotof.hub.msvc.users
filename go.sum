@@ -124,8 +124,8 @@ github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6
 github.com/pelletier/go-toml/v2 v2.2.2/go.mod h1:1t835xjRzz80PqgE6HHgN2JOsmgYu/h4qDAS4n929Rs=
 github.com/pieceowater-dev/lotof.hub.proto v0.0.22 h1:jGDLAACixTVetj08UvT6GQszKyw1P8OL9w95qBwmWNQ=
 github.com/pieceowater-dev/lotof.hub.proto v0.0.22/go.mod h1:9uwfvIUGGzTrTIVzQ4gH8hmrRC8sgtnLUhyPN5swIME=
-github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.5 h1:NbpDkHMW4VFRAxuTKaEvvEgizt4z7Nkjbzg/m3uYKQI=
-github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.5/go.mod h1:m/C+3z+Y2n9FPnakJl7jOl/4T1KfrE2/OhSslRKAGGc=
+github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.6 h1:5WEnZAd/hwMDAL8sVUoL+zO4wWeQetVO4Zo+NgxzC80=
+github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.6/go.mod h1:m/C+3z+Y2n9FPnakJl7jOl/4T1KfrE2/OhSslRKAGGc=
 github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzLZPlr7++PzdhaXEj94dEiJgZDTsxEqUI=
 github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c h1:+mdjkGKdHQG3305AYmdv1U2eRNDiU2ErMBj1gwrq8eQ=
 github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c/go.mod h1:7rwL4CYBLnjLxUqIJNnCWiEdr3bn6IUYi15bNlnbCCU=

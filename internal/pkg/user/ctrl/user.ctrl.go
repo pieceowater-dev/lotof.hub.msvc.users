@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"net/http"
 )
 
@@ -22,7 +23,29 @@ func NewUserController(service *svc.UserService) *UserController {
 }
 
 func (c UserController) GetUsers(_ context.Context, request *pb.GetUsersRequest) (*pb.GetUsersResponse, error) {
-	return c.userService.GetUsers(request)
+	filter := gossiper.NewFilter[string](
+		request.GetSearch(),
+		gossiper.NewSort[string](
+			request.GetSort().GetField(),
+			gossiper.SortDirection(request.GetSort().GetDirection()),
+		),
+		gossiper.NewPagination(
+			int(request.GetPagination().GetPage()),
+			int(request.GetPagination().GetLength()),
+		),
+	)
+
+	paginatedResult, err := c.userService.GetUsers(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUsersResponse{
+		Users: paginatedResult.Rows,
+		PaginationInfo: &pb.PaginationInfo{
+			Count: int32(paginatedResult.Info.Count),
+		},
+	}, nil
 }
 
 func (c UserController) GetUser(_ context.Context, request *pb.GetUserRequest) (*pb.User, error) {

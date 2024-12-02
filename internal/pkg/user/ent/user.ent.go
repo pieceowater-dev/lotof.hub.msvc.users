@@ -1,8 +1,6 @@
 package ent
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -17,15 +15,13 @@ const (
 )
 
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Username  string    `gorm:"type:varchar(255);not null"`
-	Email     string    `gorm:"type:varchar(255);unique;not null"`
-	Password  string    `gorm:"type:varchar(255);not null"`
-	State     UserState `gorm:"default:100"` // Default to Suspended
-	Deleted   bool      `gorm:"default:false"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	Friends   []*User   `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`
+	gorm.Model
+	ID       uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Username string    `gorm:"type:varchar(255);not null"`
+	Email    string    `gorm:"type:varchar(255);unique;not null"`
+	Password string    `gorm:"type:varchar(255);not null"`
+	State    UserState `gorm:"default:100"` // Default to Suspended
+	Friends  []*User   `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`
 }
 
 // BeforeCreate Hook for generating custom UUID and password hashing
