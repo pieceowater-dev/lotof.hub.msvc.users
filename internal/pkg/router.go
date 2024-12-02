@@ -2,6 +2,7 @@ package pkg
 
 import (
 	pb "app/internal/core/grpc/generated"
+	"app/internal/pkg/auth"
 	"app/internal/pkg/friendship"
 	"app/internal/pkg/user"
 	"github.com/gin-gonic/gin"
@@ -9,15 +10,15 @@ import (
 )
 
 type Router struct {
-	userModule *user.Module
-	//authModule       *auth.Module
+	userModule       *user.Module
+	authModule       *auth.Module
 	friendshipModule *friendship.Module
 }
 
 func NewRouter() *Router {
 	return &Router{
-		userModule: user.New(),
-		//authModule:       auth.New(),
+		userModule:       user.New(),
+		authModule:       auth.New(),
 		friendshipModule: friendship.New(),
 	}
 }
@@ -26,6 +27,7 @@ func NewRouter() *Router {
 func (r *Router) InitGRPC(grpcServer *grpc.Server) {
 	// Register gRPC services
 	pb.RegisterUserServiceServer(grpcServer, r.userModule.Controller)
+	pb.RegisterAuthServiceServer(grpcServer, r.authModule.Controller)
 	pb.RegisterFriendshipServiceServer(grpcServer, r.friendshipModule.Controller)
 }
 

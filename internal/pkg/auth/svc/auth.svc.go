@@ -1,9 +1,11 @@
 package svc
 
 import (
+	"app/internal/core/cfg"
 	"app/internal/pkg/user/ent"
-	"context"
 	"errors"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -17,33 +19,69 @@ func NewAuthService(db gossiper.Database) *AuthService {
 	return &AuthService{db: db}
 }
 
-func (s *AuthService) Login(ctx context.Context, email, password string) (*ent.User, error) {
-	var user ent.User
-	if err := s.db.GetDB().Where("email = ? AND deleted = ?", email, false).First(&user).Error; err != nil {
-		return nil, errors.New("incorrect user or password")
+// Generate JWT Token
+func (s *AuthService) generateJWT(user *ent.User) (*string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId": user.ID.String(),
+		"email":  user.Email,
+		"exp":    time.Now().Add(168 * time.Hour).Unix(),
+	})
+
+	secret := cfg.Inst().SecretKey
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	// Compare hashed password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New("incorrect user or password")
-	}
-
-	return &user, nil
+	return &tokenString, nil
 }
 
-func (s *AuthService) Register(ctx context.Context, user *ent.User) (*ent.User, error) {
-	// Hash the password before saving
+func (s *AuthService) Login(email, password string) (*string, *ent.User, error) {
+	var user ent.User
+
+	if err := s.db.GetDB().Where("email = ? AND deleted_at IS NULL", email).First(&user).Error; err != nil {
+		return nil, nil, errors.New("invalid email or password")
+	}
+
+	// Check user state todo: implement this logic later
+	//if user.State != ent.Active {
+	//	return nil, nil, errors.New("account is not active")
+	//}
+
+	// Validate password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, nil, errors.New("invalid email or password")
+	}
+
+	// Generate JWT token
+	token, err := s.generateJWT(&user)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return token, &user, nil
+}
+
+func (s *AuthService) Register(user *ent.User) (*string, *ent.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	user.Password = string(hashedPassword)
 	user.CreatedAt = time.Now()
+	user.State = ent.Suspended
 
+	// Save user to DB
 	if err := s.db.GetDB().Create(user).Error; err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return user, nil
+	// Generate JWT token
+	token, err := s.generateJWT(user)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return token, user, nil
 }

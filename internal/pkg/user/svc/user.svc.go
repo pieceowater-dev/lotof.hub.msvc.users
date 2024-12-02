@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,12 @@ func NewUserService(db gossiper.Database) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) CreateUser(user *ent.User) (*ent.User, error) {
+func (s *UserService) CreateUser(user *ent.User) (*ent.User, error) { // todo: delete this later
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(hashedPassword)
 	if err := s.db.GetDB().Create(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return nil, errors.New("email already exists")
@@ -85,14 +91,3 @@ func (s *UserService) GetUsers(filter gossiper.Filter[string]) (gossiper.Paginat
 	// Create paginated result
 	return gossiper.NewPaginatedResult(grpcUsers, int(count)), nil
 }
-
-//func (s *UserService) AddFriend(userID, friendID string) error {
-//	var user, friend ent.User
-//	if err := s.db.GetDB().First(&user, "id = ?", userID).Error; err != nil {
-//		return err
-//	}
-//	if err := s.db.GetDB().First(&friend, "id = ?", friendID).Error; err != nil {
-//		return err
-//	}
-//	return s.db.GetDB().Model(&user).Association("Friends").Append(&friend)
-//}

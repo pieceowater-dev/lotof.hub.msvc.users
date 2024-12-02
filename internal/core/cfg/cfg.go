@@ -10,10 +10,13 @@ import (
 )
 
 type Config struct {
-	GrpcPort            string
-	RestPort            string
+	GrpcPort string
+	RestPort string
+
 	PostgresDatabaseDSN string
 	PostgresModels      []any
+
+	SecretKey string
 }
 
 var (
@@ -29,8 +32,9 @@ func Inst() *Config {
 		}
 
 		instance = &Config{
-			GrpcPort:            getEnv("GRPC_PORT", "50051"),
-			RestPort:            getEnv("REST_PORT", "3000"),
+			GrpcPort: getEnv("GRPC_PORT", "50051"),
+			RestPort: getEnv("REST_PORT", "3000"),
+
 			PostgresDatabaseDSN: getEnv("POSTGRES_DB_DSN", "postgres://pieceouser:pieceopassword@localhost:5432/users?sslmode=disable"),
 			PostgresModels: []any{
 				// models to migration here:
@@ -38,6 +42,8 @@ func Inst() *Config {
 				&user.User{},
 				&frinedship.Friendship{},
 			},
+
+			SecretKey: getEnv("SECRET_KEY", "secret"),
 		}
 	})
 	return instance
