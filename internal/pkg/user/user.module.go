@@ -17,6 +17,7 @@ func New() *Module {
 		gossiper.PostgresDB,
 		cfg.Inst().PostgresDatabaseDSN,
 		false,
+		[]any{},
 	)
 	if err != nil {
 		log.Fatalf("Failed to create database instance: %v", err)
