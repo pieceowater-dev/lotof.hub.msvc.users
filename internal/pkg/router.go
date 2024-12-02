@@ -18,7 +18,7 @@ func NewRouter() *Router {
 	return &Router{
 		userModule: user.New(),
 		//authModule:       auth.New(),
-		//friendshipModule: friendship.New(),
+		friendshipModule: friendship.New(),
 	}
 }
 
@@ -26,6 +26,7 @@ func NewRouter() *Router {
 func (r *Router) InitGRPC(grpcServer *grpc.Server) {
 	// Register gRPC services
 	pb.RegisterUserServiceServer(grpcServer, r.userModule.Controller)
+	pb.RegisterFriendshipServiceServer(grpcServer, r.friendshipModule.Controller)
 }
 
 // InitREST initializes REST routes using Gin

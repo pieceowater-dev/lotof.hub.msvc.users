@@ -16,7 +16,7 @@ func NewFriendshipService(db gossiper.Database) *FriendshipService {
 	return &FriendshipService{db: db}
 }
 
-func (s *FriendshipService) CreateFriendRequest(ctx context.Context, userID, friendID string) (*ent.Friendship, error) {
+func (s *FriendshipService) CreateFriendRequest(userID, friendID string) (*ent.Friendship, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, errors.New("invalid user ID")
@@ -26,7 +26,11 @@ func (s *FriendshipService) CreateFriendRequest(ctx context.Context, userID, fri
 		return nil, errors.New("invalid friend ID")
 	}
 
-	exists := s.db.GetDB().Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", userUUID, friendUUID, friendUUID, userUUID).First(&ent.Friendship{})
+	var existingFriendship ent.Friendship
+	exists := s.db.GetDB().
+		Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)",
+			userUUID, friendUUID, friendUUID, userUUID).
+		First(&existingFriendship)
 	if exists.RowsAffected > 0 {
 		return nil, errors.New("friend request already exists")
 	}
@@ -34,9 +38,18 @@ func (s *FriendshipService) CreateFriendRequest(ctx context.Context, userID, fri
 	friendship := &ent.Friendship{
 		UserID:   userUUID,
 		FriendID: friendUUID,
+		Status:   ent.Pending,
 	}
 
 	if err := s.db.GetDB().Create(friendship).Error; err != nil {
+		return nil, err
+	}
+
+	if err := s.db.GetDB().
+		Preload("User").
+		Preload("Friend").
+		First(friendship, "id = ?", friendship.ID).
+		Error; err != nil {
 		return nil, err
 	}
 
