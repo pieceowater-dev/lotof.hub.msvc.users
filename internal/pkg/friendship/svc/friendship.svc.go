@@ -2,10 +2,10 @@ package svc
 
 import (
 	"app/internal/pkg/friendship/ent"
-	"context"
 	"errors"
 	"github.com/google/uuid"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
+	"log"
 )
 
 type FriendshipService struct {
@@ -56,59 +56,40 @@ func (s *FriendshipService) CreateFriendRequest(userID, friendID string) (*ent.F
 	return friendship, nil
 }
 
-func (s *FriendshipService) AcceptFriendRequest(ctx context.Context, friendshipID string) error {
+func (s *FriendshipService) GetFriendship(friendshipUUID uuid.UUID) (*ent.Friendship, error) {
+	var friendship ent.Friendship
+	if err := s.db.GetDB().
+		Preload("User").
+		Preload("Friend").
+		First(&friendship, "id = ?", friendshipUUID).Error; err != nil {
+		return nil, errors.New("friendship not found with includes")
+	}
+
+	return &friendship, nil
+}
+
+func (s *FriendshipService) AcceptFriendRequest(friendshipID string) (*ent.Friendship, error) {
 	friendshipUUID, err := uuid.Parse(friendshipID)
 	if err != nil {
-		return errors.New("invalid friendship ID")
+		return nil, errors.New("invalid friendship ID")
 	}
 
 	var friendship ent.Friendship
-	if err := s.db.GetDB().First(&friendship, "id = ?", friendshipUUID).Error; err != nil {
-		return errors.New("friend request not found")
+	if err := s.db.GetDB().
+		First(&friendship, "id = ?", friendshipUUID).Error; err != nil {
+		return nil, errors.New("friend request not found")
 	}
 
-	tx := s.db.GetDB().Begin()
-
-	// Add friends relationship
-	if err := tx.Exec("INSERT INTO friendships (user_id, friend_id) VALUES (?, ?), (?, ?)",
-		friendship.UserID, friendship.FriendID, friendship.FriendID, friendship.UserID).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// Remove the request
-	if err := tx.Delete(&ent.Friendship{}, friendship.ID).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit().Error
-}
-
-func (s *FriendshipService) GetFriendRequests(ctx context.Context, userID string, inout string) ([]ent.Friendship, error) {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, errors.New("invalid user ID")
-	}
-
-	var friendships []ent.Friendship
-	query := s.db.GetDB()
-	if inout == "IN" {
-		query = query.Where("friend_id = ?", userUUID)
-	} else if inout == "OUT" {
-		query = query.Where("user_id = ?", userUUID)
-	} else {
-		return nil, errors.New("invalid inout value")
-	}
-
-	if err := query.Find(&friendships).Error; err != nil {
+	friendship.Status = ent.Accepted
+	if err := s.db.GetDB().Save(&friendship).Error; err != nil {
+		log.Println("Error while saving:", err)
 		return nil, err
 	}
 
-	return friendships, nil
+	return s.GetFriendship(friendshipUUID)
 }
 
-func (s *FriendshipService) RemoveFriendRequest(ctx context.Context, friendshipID string) error {
+func (s *FriendshipService) RemoveFriend(friendshipID string) error {
 	friendshipUUID, err := uuid.Parse(friendshipID)
 	if err != nil {
 		return errors.New("invalid friendship ID")
@@ -119,4 +100,24 @@ func (s *FriendshipService) RemoveFriendRequest(ctx context.Context, friendshipI
 	}
 
 	return nil
+}
+
+func (s *FriendshipService) GetFriendships(userID string, status ent.FriendshipStatus) ([]ent.Friendship, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, errors.New("invalid user ID")
+	}
+
+	var friendships []ent.Friendship
+
+	if err := s.db.GetDB().
+		Where("user_id = ? OR friend_id = ?", userUUID, userUUID).
+		Where("status = ?", status).
+		Preload("User").
+		Preload("Friend").
+		Find(&friendships).Error; err != nil {
+		return nil, err
+	}
+
+	return friendships, nil
 }

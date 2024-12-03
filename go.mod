@@ -5,11 +5,10 @@ go 1.23.0
 require (
 	ariga.io/atlas-provider-gorm v0.5.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
-	github.com/pieceowater-dev/lotof.hub.proto v0.0.24
+	github.com/pieceowater-dev/lotof.hub.proto v0.0.25
 	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.6
 	golang.org/x/crypto v0.29.0
 	google.golang.org/grpc v1.68.0
