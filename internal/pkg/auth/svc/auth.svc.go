@@ -36,6 +36,36 @@ func (s *AuthService) generateJWT(user *ent.User) (*string, error) {
 	return &tokenString, nil
 }
 
+func (s *AuthService) ValidateToken(token string) (bool, *ent.User, error) {
+	secret := cfg.Inst().SecretKey
+
+	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return false, nil, fmt.Errorf("invalid token: %w", err)
+	}
+
+	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
+		userId, ok := claims["userId"].(string)
+		if !ok {
+			return false, nil, errors.New("invalid token payload: missing userId")
+		}
+
+		var user ent.User
+		if err := s.db.GetDB().Where("id = ? AND deleted_at IS NULL", userId).First(&user).Error; err != nil {
+			return false, nil, fmt.Errorf("user not found: %w", err)
+		}
+
+		return true, &user, nil
+	}
+
+	return false, nil, errors.New("invalid or expired token")
+}
+
 func (s *AuthService) Login(email, password string) (*string, *ent.User, error) {
 	var user ent.User
 

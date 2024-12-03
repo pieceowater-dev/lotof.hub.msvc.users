@@ -18,6 +18,26 @@ func NewAuthController(service *svc.AuthService) *AuthController {
 	}
 }
 
+func (a AuthController) ValidateToken(_ context.Context, req *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+	ok, user, err := a.authService.ValidateToken(req.Token)
+	if err != nil {
+		return &pb.ValidateTokenResponse{
+			Valid:   false,
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &pb.ValidateTokenResponse{
+		Valid:   ok,
+		Message: "",
+		User: &pb.User{
+			Id:       user.ID.String(),
+			Username: user.Username,
+			Email:    user.Email,
+		},
+	}, nil
+}
+
 func (a AuthController) Login(_ context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
 	token, user, err := a.authService.Login(request.Email, request.Password)
 	if err != nil {
