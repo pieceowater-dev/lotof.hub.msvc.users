@@ -1,6 +1,6 @@
-# lotof.sample.svc
+# lotof.hub.msvc.users
 
-Welcome to the **Lotof Sample Service** project! This project provides a structure to generate, build, and run a grpc microservice using [Docker](https://www.docker.com/) for containerization. Below you'll find a comprehensive guide to get started with this project.
+Welcome to the **Lotof Hub Users Service** project! This project provides a structure to generate, build, and run a grpc microservice using [Docker](https://www.docker.com/) for containerization. Below you'll find a comprehensive guide to get started with this project.
 
 ## Prerequisites
 
