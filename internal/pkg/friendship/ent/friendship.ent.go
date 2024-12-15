@@ -21,7 +21,6 @@ type Friendship struct {
 	FriendID uuid.UUID        `gorm:"type:uuid;not null"`
 	Status   FriendshipStatus `gorm:"type:smallint;default:100"` // Default to Pending
 
-	// Связи с таблицей пользователей
 	User   *entUser.User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 	Friend *entUser.User `gorm:"foreignKey:FriendID;constraint:OnDelete:CASCADE"`
 }
