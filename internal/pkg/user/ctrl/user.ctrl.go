@@ -60,22 +60,6 @@ func (c UserController) GetUser(_ context.Context, request *pb.GetUserRequest) (
 	}, nil
 }
 
-func (c UserController) CreateUser(_ context.Context, request *pb.CreateUserRequest) (*pb.User, error) {
-	user, err := c.userService.CreateUser(&ent.User{
-		Username: request.Username,
-		Password: request.Password,
-		Email:    request.Email,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &pb.User{
-		Id:       user.ID.String(),
-		Username: user.Username,
-		Email:    user.Email,
-	}, err
-}
-
 func (c UserController) UpdateUser(_ context.Context, request *pb.UpdateUserRequest) (*pb.User, error) {
 	user, err := c.userService.UpdateUser(&ent.User{
 		ID:       uuid.MustParse(request.Id),

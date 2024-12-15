@@ -16,17 +16,15 @@ const (
 type User struct {
 	gorm.Model
 	ID       uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Username string    `gorm:"type:varchar(255);not null"`
+	Username string    `gorm:"type:varchar(255);unique;not null"`
 	Email    string    `gorm:"type:varchar(255);unique;not null"`
 	Password string    `gorm:"type:varchar(255);not null"`
 	State    UserState `gorm:"type:smallint;default:100"` // Default to Suspended
 	Friends  []*User   `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`
 }
 
-// BeforeCreate Hook for generating custom UUID
+// BeforeCreate Hook for generating UUID
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	// Generate custom UUID for user
 	u.ID = uuid.New()
-	//todo: generate hashed password here ONLY
 	return nil
 }

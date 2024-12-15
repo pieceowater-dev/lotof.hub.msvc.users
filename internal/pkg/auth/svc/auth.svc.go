@@ -102,12 +102,10 @@ func (s *AuthService) Register(user *ent.User) (*string, *ent.User, error) {
 	user.CreatedAt = time.Now()
 	user.State = ent.Suspended
 
-	// Save user to DB
 	if err := s.db.GetDB().Create(user).Error; err != nil {
 		return nil, nil, err
 	}
 
-	// Generate JWT token
 	token, err := s.generateJWT(user)
 	if err != nil {
 		return nil, nil, err

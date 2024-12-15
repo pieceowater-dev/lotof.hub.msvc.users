@@ -3,11 +3,8 @@ package svc
 import (
 	pb "app/internal/core/grpc/generated"
 	"app/internal/pkg/user/ent"
-	"errors"
 	"fmt"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -18,24 +15,9 @@ func NewUserService(db gossiper.Database) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) CreateUser(user *ent.User) (*ent.User, error) { // todo: delete this later
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-	user.Password = string(hashedPassword)
-	if err := s.db.GetDB().Create(user).Error; err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return nil, errors.New("email already exists")
-		}
-		return nil, err
-	}
-	return user, nil
-}
-
 func (s *UserService) GetUserByID(id string) (*ent.User, error) {
 	var user ent.User
-	if err := s.db.GetDB().Preload("Friends").First(&user, "id = ?", id).Error; err != nil {
+	if err := s.db.GetDB().First(&user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
