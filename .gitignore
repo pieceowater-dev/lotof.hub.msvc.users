@@ -26,3 +26,5 @@ go.work.sum
 
 internal/core/grpc/generated/
 bin/*
+
+.idea
