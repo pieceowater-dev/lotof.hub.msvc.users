@@ -1,7 +1,7 @@
 package svc
 
 import (
-	pb "app/internal/core/grpc/generated"
+	pb "app/internal/core/grpc/generated/lotof.hub.msvc.users/user"
 	"app/internal/pkg/user/ent"
 	"fmt"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"

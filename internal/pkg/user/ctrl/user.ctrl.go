@@ -1,7 +1,8 @@
 package ctrl
 
 import (
-	pb "app/internal/core/grpc/generated"
+	pbu "app/internal/core/grpc/generated/generic/utils"
+	pb "app/internal/core/grpc/generated/lotof.hub.msvc.users/user"
 	"app/internal/pkg/user/ent"
 	"app/internal/pkg/user/svc"
 	"context"
@@ -42,7 +43,7 @@ func (c UserController) GetUsers(_ context.Context, request *pb.GetUsersRequest)
 
 	return &pb.GetUsersResponse{
 		Users: paginatedResult.Rows,
-		PaginationInfo: &pb.PaginationInfo{
+		PaginationInfo: &pbu.PaginationInfo{
 			Count: int32(paginatedResult.Info.Count),
 		},
 	}, nil

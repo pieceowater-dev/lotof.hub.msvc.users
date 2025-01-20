@@ -8,7 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
-	github.com/pieceowater-dev/lotof.hub.proto v0.0.26
+	github.com/pieceowater-dev/lotof.hub.proto v0.0.59
 	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.13
 	golang.org/x/crypto v0.29.0
 	google.golang.org/grpc v1.68.0

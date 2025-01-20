@@ -1,7 +1,8 @@
 package ctrl
 
 import (
-	pb "app/internal/core/grpc/generated"
+	pbAuth "app/internal/core/grpc/generated/lotof.hub.msvc.users/auth"
+	pbUser "app/internal/core/grpc/generated/lotof.hub.msvc.users/user"
 	"app/internal/pkg/auth/svc"
 	"app/internal/pkg/user/ent"
 	"context"
@@ -9,7 +10,7 @@ import (
 
 type AuthController struct {
 	authService *svc.AuthService
-	pb.UnimplementedAuthServiceServer
+	pbAuth.UnimplementedAuthServiceServer
 }
 
 func NewAuthController(service *svc.AuthService) *AuthController {
@@ -18,19 +19,19 @@ func NewAuthController(service *svc.AuthService) *AuthController {
 	}
 }
 
-func (a AuthController) ValidateToken(_ context.Context, req *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+func (a AuthController) ValidateToken(_ context.Context, req *pbAuth.ValidateTokenRequest) (*pbAuth.ValidateTokenResponse, error) {
 	ok, user, err := a.authService.ValidateToken(req.Token)
 	if err != nil {
-		return &pb.ValidateTokenResponse{
+		return &pbAuth.ValidateTokenResponse{
 			Valid:   false,
 			Message: err.Error(),
 		}, nil
 	}
 
-	return &pb.ValidateTokenResponse{
+	return &pbAuth.ValidateTokenResponse{
 		Valid:   ok,
 		Message: "",
-		User: &pb.User{
+		User: &pbUser.User{
 			Id:       user.ID.String(),
 			Username: user.Username,
 			Email:    user.Email,
@@ -38,15 +39,15 @@ func (a AuthController) ValidateToken(_ context.Context, req *pb.ValidateTokenRe
 	}, nil
 }
 
-func (a AuthController) Login(_ context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
+func (a AuthController) Login(_ context.Context, request *pbAuth.LoginRequest) (*pbAuth.AuthResponse, error) {
 	token, user, err := a.authService.Login(request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.AuthResponse{
+	return &pbAuth.AuthResponse{
 		Token: *token,
-		User: &pb.User{
+		User: &pbUser.User{
 			Id:       user.ID.String(),
 			Username: user.Username,
 			Email:    user.Email,
@@ -54,7 +55,7 @@ func (a AuthController) Login(_ context.Context, request *pb.LoginRequest) (*pb.
 	}, nil
 }
 
-func (a AuthController) Register(_ context.Context, request *pb.RegisterRequest) (*pb.AuthResponse, error) {
+func (a AuthController) Register(_ context.Context, request *pbAuth.RegisterRequest) (*pbAuth.AuthResponse, error) {
 	token, user, err := a.authService.Register(&ent.User{
 		Username: request.Username,
 		Email:    request.Email,
@@ -64,9 +65,9 @@ func (a AuthController) Register(_ context.Context, request *pb.RegisterRequest)
 		return nil, err
 	}
 
-	return &pb.AuthResponse{
+	return &pbAuth.AuthResponse{
 		Token: *token,
-		User: &pb.User{
+		User: &pbUser.User{
 			Id:       user.ID.String(),
 			Username: user.Username,
 			Email:    user.Email,
